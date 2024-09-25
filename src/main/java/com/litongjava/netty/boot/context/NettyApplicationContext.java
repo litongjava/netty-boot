@@ -10,6 +10,9 @@ import com.litongjava.tio.utils.environment.EnvUtils;
 
 public class NettyApplicationContext implements Context {
 
+  private NettyBootServer nettyBootServer = NettyBootServer.me();
+  private int port = 0;
+
   public Context run(Class<?>[] primarySources, String[] args) {
     return run(primarySources, null, args);
   }
@@ -24,37 +27,32 @@ public class NettyApplicationContext implements Context {
     EnvUtils.buildCmdArgsMap(args);
     EnvUtils.load();
     // port and contextPath
-    int port = EnvUtils.getInt(ServerConfigKeys.SERVER_PORT, 80);
+    port = EnvUtils.getInt(ServerConfigKeys.SERVER_PORT, 80);
     String contextPath = EnvUtils.get(ServerConfigKeys.SERVER_CONTEXT_PATH);
 
-    NettyBootServer tioBootServer = NettyBootServer.me();
-    tioBootServer.start(port);
+    nettyBootServer.start(port, contextPath);
     return null;
   }
 
   public void initAnnotation(List<Class<?>> scannedClasses) {
-    // TODO Auto-generated method stub
-
   }
 
   public boolean isRunning() {
-    // TODO Auto-generated method stub
     return false;
   }
 
   public void close() {
-    // TODO Auto-generated method stub
-
+    nettyBootServer.stop();
   }
 
   public void restart(Class<?>[] primarySources, String[] args) {
-    // TODO Auto-generated method stub
+    close();
+    run(primarySources, null, args);
 
   }
 
   public int getPort() {
-    // TODO Auto-generated method stub
-    return 0;
+    return port;
   }
 
 }

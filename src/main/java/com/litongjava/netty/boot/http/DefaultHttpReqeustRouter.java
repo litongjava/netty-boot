@@ -1,10 +1,8 @@
-package com.litongjava.netty.boot.router;
+package com.litongjava.netty.boot.http;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.litongjava.netty.boot.handler.HttpRequestHandler;
 
 public class DefaultHttpReqeustRouter implements HttpRequestRouter {
   Map<String, HttpRequestHandler> requestMapping = new ConcurrentHashMap<>();

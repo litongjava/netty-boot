@@ -1,4 +1,4 @@
-package com.litongjava.netty.boot.handler;
+package com.litongjava.netty.boot.http;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;

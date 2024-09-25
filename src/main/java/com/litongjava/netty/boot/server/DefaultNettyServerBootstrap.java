@@ -27,9 +27,9 @@ public class DefaultNettyServerBootstrap {
       ServerBootstrap bootstrap = new ServerBootstrap();
       bootstrap.group(boss, worker);
       bootstrap.channel(NioServerSocketChannel.class);
-      bootstrap.option(ChannelOption.SO_BACKLOG, 1024); // 连接数
-      bootstrap.option(ChannelOption.TCP_NODELAY, true); // 不延迟，消息立即发送
-      bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true); // 长连接
+      bootstrap.option(ChannelOption.SO_BACKLOG, 1024);
+      bootstrap.option(ChannelOption.TCP_NODELAY, true);
+      bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
       bootstrap.childHandler(defaultChannelInitializer);
       ChannelFuture f = bootstrap.bind(port).sync();
       if (f.isSuccess()) {

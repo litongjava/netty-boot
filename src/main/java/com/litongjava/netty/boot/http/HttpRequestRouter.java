@@ -1,6 +1,4 @@
-package com.litongjava.netty.boot.router;
-
-import com.litongjava.netty.boot.handler.HttpRequestHandler;
+package com.litongjava.netty.boot.http;
 
 public interface HttpRequestRouter {
 
