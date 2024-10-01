@@ -9,7 +9,7 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <lombok-version>1.18.30</lombok-version>
-    <tio-version>3.7.3.v20240918-RELEASE</tio-version>
+    <tio-version>3.7.3.v20240930-RELEASE</tio-version>
   </properties>
 
   <dependencies>
@@ -40,6 +40,14 @@
       <artifactId>tio-utils</artifactId>
       <version>${tio-version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>com.litongjava</groupId>
+      <artifactId>jfinal-aop</artifactId>
+      <version>1.2.9</version>
+      <scope>provided</scope>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

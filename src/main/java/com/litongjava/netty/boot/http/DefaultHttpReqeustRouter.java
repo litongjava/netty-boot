@@ -43,4 +43,9 @@ public class DefaultHttpReqeustRouter implements HttpRequestRouter {
 
   }
 
+  @Override
+  public Map<String, HttpRequestHandler> mapping() {
+    return requestMapping;
+  }
+
 }

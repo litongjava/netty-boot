@@ -1,5 +1,7 @@
 package com.litongjava.netty.boot.http;
 
+import java.util.Map;
+
 public interface HttpRequestRouter {
 
   /**
@@ -15,4 +17,7 @@ public interface HttpRequestRouter {
    * @return
    */
   public HttpRequestHandler find(String path);
+  
+  
+  public Map<String, HttpRequestHandler> mapping();
 }

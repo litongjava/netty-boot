@@ -40,4 +40,9 @@ public class DefaultWebsocketRouter implements WebsocketRouter {
 
     return null;
   }
+
+  @Override
+  public Map<String, WebSocketFrameHandler> mapping() {
+    return routeMapping;
+  }
 }
