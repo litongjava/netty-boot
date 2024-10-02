@@ -12,9 +12,11 @@ import com.litongjava.context.Context;
 import com.litongjava.jfinal.aop.process.BeanProcess;
 import com.litongjava.jfinal.aop.process.BeforeStartConfigurationProcess;
 import com.litongjava.jfinal.aop.scaner.ComponentScanner;
+import com.litongjava.netty.boot.http.DefaultHttpReqeustRouter;
 import com.litongjava.netty.boot.http.HttpRequestHandler;
 import com.litongjava.netty.boot.http.HttpRequestRouter;
 import com.litongjava.netty.boot.server.NettyBootServer;
+import com.litongjava.netty.boot.websocket.DefaultWebsocketRouter;
 import com.litongjava.netty.boot.websocket.WebSocketFrameHandler;
 import com.litongjava.netty.boot.websocket.WebsocketRouter;
 import com.litongjava.tio.utils.environment.EnvUtils;
@@ -90,6 +92,18 @@ public class NettyApplicationContext implements Context {
       }
     }
 
+    HttpRequestRouter httpRequestRouter = nettyBootServer.getHttpRequestRouter();
+    if (httpRequestRouter == null) {
+      httpRequestRouter = new DefaultHttpReqeustRouter();
+      nettyBootServer.setHttpRequestRouter(httpRequestRouter);
+    }
+
+    WebsocketRouter websocketRouter = nettyBootServer.getWebsocketRouter();
+    if (websocketRouter == null) {
+      websocketRouter = new DefaultWebsocketRouter();
+      nettyBootServer.setWebsocketRouter(websocketRouter);
+    }
+
     if (ClassCheckUtils.check(AopClasses.Aop)) {
       if (scannedClasses != null && scannedClasses.size() > 0) {
         this.initAnnotation(scannedClasses);
@@ -100,11 +114,11 @@ public class NettyApplicationContext implements Context {
 
     long routeStartTime = System.currentTimeMillis();
 
-    HttpRequestRouter httpRequestRouter = nettyBootServer.getHttpRequestRouter();
     Map<String, HttpRequestHandler> httpRequestMapping = httpRequestRouter.mapping();
 
-    WebsocketRouter websocketRouter = nettyBootServer.getWebsocketRouter();
     Map<String, WebSocketFrameHandler> websocketMapping = websocketRouter.mapping();
+
+    log.info(":{},{},{}", nettyBootServer, httpRequestRouter, websocketRouter);
 
     log.info("http  mapping\r\n{}", MapJsonUtils.toPrettyJson(httpRequestMapping));
     log.info("websocket  mapping\r\n{}", MapJsonUtils.toPrettyJson(websocketMapping));
@@ -150,7 +164,7 @@ public class NettyApplicationContext implements Context {
   }
 
   public boolean isRunning() {
-    return false;
+    return nettyBootServer.isRunning();
   }
 
   public void close() {
@@ -160,7 +174,6 @@ public class NettyApplicationContext implements Context {
   public void restart(Class<?>[] primarySources, String[] args) {
     close();
     run(primarySources, null, args);
-
   }
 
   public int getPort() {

@@ -14,6 +14,7 @@ public class DefaultNettyServerBootstrap {
   private DefaultChannelInitializer defaultChannelInitializer;
   private EventLoopGroup boss = new NioEventLoopGroup();
   private EventLoopGroup worker = new NioEventLoopGroup();
+  private ChannelFuture future;
 
   public DefaultNettyServerBootstrap(int port, DefaultChannelInitializer channelInitializer) {
     this.port = port;
@@ -23,37 +24,59 @@ public class DefaultNettyServerBootstrap {
   public void start(long startTime) {
     boss = new NioEventLoopGroup();
     worker = new NioEventLoopGroup();
+    ServerBootstrap bootstrap = new ServerBootstrap();
+    bootstrap.group(boss, worker);
+    bootstrap.channel(NioServerSocketChannel.class);
+    bootstrap.option(ChannelOption.SO_BACKLOG, 1024);
+    bootstrap.option(ChannelOption.TCP_NODELAY, true);
+    bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
+    bootstrap.childHandler(defaultChannelInitializer);
+
     try {
-      ServerBootstrap bootstrap = new ServerBootstrap();
-      bootstrap.group(boss, worker);
-      bootstrap.channel(NioServerSocketChannel.class);
-      bootstrap.option(ChannelOption.SO_BACKLOG, 1024);
-      bootstrap.option(ChannelOption.TCP_NODELAY, true);
-      bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
-      bootstrap.childHandler(defaultChannelInitializer);
-      ChannelFuture f = bootstrap.bind(port).sync();
-      if (f.isSuccess()) {
-        long endTime = System.currentTimeMillis();
-        log.info("netty start successful:{}(ms)", endTime  - startTime);
-      }
-      f.channel().closeFuture().sync();
+      // 异步启动 Netty 服务
+      future = bootstrap.bind(port).sync();
+      
+      future.addListener(f -> {
+        if (f.isSuccess()) {
+          //log.info("Netty started successfully on port {}", port);
+        } else {
+          log.error("Failed to start Netty: {}", f);
+        }
+      });
+
+      // future.channel().closeFuture().sync();
     } catch (Exception e) {
-      log.info("netty start fail：" + e.getMessage());
+      log.error("Failed to start Netty server: {}", e.getMessage());
       e.printStackTrace();
-    } finally {
-      close();
     }
   }
 
   public void close() {
-    log.info("close netty");
+    log.info("Closing Netty server...");
+    if (future != null) {
+      try {
+        future.channel().close().sync();
+      } catch (InterruptedException e) {
+        log.error("Error while closing the Netty server: {}", e.getMessage());
+        Thread.currentThread().interrupt();
+      }
+    }
     if (boss != null) {
       boss.shutdownGracefully();
     }
     if (worker != null) {
       worker.shutdownGracefully();
     }
-
+    log.info("Netty server closed.");
   }
 
+  public void restart(long startTime) {
+    log.info("Restarting Netty server...");
+    close(); 
+    start(startTime); 
+  }
+
+  public boolean isRunning() {
+    return future != null && future.channel().isActive();
+  }
 }

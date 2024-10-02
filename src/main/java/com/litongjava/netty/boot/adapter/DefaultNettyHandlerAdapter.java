@@ -79,7 +79,14 @@ public class DefaultNettyHandlerAdapter extends SimpleChannelInboundHandler<Obje
     HttpRequestHandler httpRequestHandler = httpRequestRouter.find(uri);
     FullHttpResponse response;
     if (httpRequestHandler != null) {
-      response = httpRequestHandler.handle(ctx, request);
+      try {
+        response = httpRequestHandler.handle(ctx, request);
+      }catch (Exception e) {
+        e.printStackTrace();
+        String responseContent = "500 Internal Sever Error";
+        ByteBuf byteBuffer = Unpooled.copiedBuffer(responseContent, CharsetUtil.UTF_8);
+        response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, byteBuffer);
+      }
     } else {
       String responseContent = "404 Not Found";
       ByteBuf byteBuffer = Unpooled.copiedBuffer(responseContent, CharsetUtil.UTF_8);

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.litongjava</groupId>
   <artifactId>netty-boot</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <name>netty-boot</name>
   <description>java开发常用工具类封装</description>
   <url>https://github.com/litongjava/netty-boot</url>
@@ -42,6 +42,11 @@
       <groupId>com.litongjava</groupId>
       <artifactId>tio-utils</artifactId>
       <version>${tio-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.litongjava</groupId>
+      <artifactId>java-model</artifactId>
+      <version>1.0.5</version>
     </dependency>
 
     <dependency>
