@@ -1,7 +1,9 @@
 package com.litongjava.netty.boot.server;
 
+import com.litongjava.constatns.ServerConfigKeys;
 import com.litongjava.netty.boot.adapter.DefaultNettyHandlerAdapter;
 import com.litongjava.netty.boot.handler.ContextPathHandler;
+import com.litongjava.tio.utils.environment.EnvUtils;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -26,8 +28,12 @@ public class DefaultChannelInitializer extends ChannelInitializer<SocketChannel>
     pipeline.addLast("httpServerCodec", new HttpServerCodec());
     pipeline.addLast(new ChunkedWriteHandler());
     // Add HTTP object aggregator (optional)
-    pipeline.addLast("httpObjectAggregator", new HttpObjectAggregator(65536));
-    pipeline.addLast("contextPathHandler", new ContextPathHandler(contextPath));
+    int maxContentLength = EnvUtils.getInt(ServerConfigKeys.HTTP_MULTIPART_MAX_REQUEST_SIZE, 10 * 1024 * 1024);
+    pipeline.addLast("httpObjectAggregator", new HttpObjectAggregator(maxContentLength));
+
+    if (contextPath != null) {
+      pipeline.addLast("contextPathHandler", new ContextPathHandler(contextPath));
+    }
     pipeline.addLast(new DefaultNettyHandlerAdapter());
   }
 }

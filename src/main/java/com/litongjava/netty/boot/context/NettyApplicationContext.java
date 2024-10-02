@@ -15,6 +15,8 @@ import com.litongjava.jfinal.aop.scaner.ComponentScanner;
 import com.litongjava.netty.boot.http.DefaultHttpReqeustRouter;
 import com.litongjava.netty.boot.http.HttpRequestHandler;
 import com.litongjava.netty.boot.http.HttpRequestRouter;
+import com.litongjava.netty.boot.inteceptor.DefaultHttpRequestInterceptorDispatcher;
+import com.litongjava.netty.boot.inteceptor.HttpRequestInterceptor;
 import com.litongjava.netty.boot.server.NettyBootServer;
 import com.litongjava.netty.boot.websocket.DefaultWebsocketRouter;
 import com.litongjava.netty.boot.websocket.WebSocketFrameHandler;
@@ -90,6 +92,12 @@ public class NettyApplicationContext implements Context {
       } catch (IOException e) {
         throw new RuntimeException("Failed to configure bootConfiguration", e);
       }
+    }
+
+    HttpRequestInterceptor httpRequestInterceptor = nettyBootServer.getHttpRequestInterceptorDispather();
+    if (httpRequestInterceptor == null) {
+      httpRequestInterceptor = new DefaultHttpRequestInterceptorDispatcher();
+      nettyBootServer.setHttpRequestInterceptorDispather(httpRequestInterceptor);
     }
 
     HttpRequestRouter httpRequestRouter = nettyBootServer.getHttpRequestRouter();

@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.litongjava.hook.HookContainer;
 import com.litongjava.netty.boot.http.HttpRequestRouter;
+import com.litongjava.netty.boot.inteceptor.HttpRequestInterceptor;
+import com.litongjava.netty.boot.inteceptor.ServerInteceptorConfigure;
 import com.litongjava.netty.boot.listener.ChannelConnectionListener;
 import com.litongjava.netty.boot.websocket.WebsocketRouter;
 
@@ -28,6 +30,8 @@ public class NettyBootServer {
   private WebsocketRouter websocketRouter = null;
   private DefaultNettyServerBootstrap nettyServerBootstrap; // Keep a reference
   private ChannelConnectionListener channelConnectionListener;
+  private ServerInteceptorConfigure serverInteceptorConfigure;
+  private HttpRequestInterceptor httpRequestInterceptorDispather;
 
   // Add this method to stop the server
   public void stop() {
