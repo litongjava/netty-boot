@@ -20,7 +20,7 @@ public class DefaultNettyServerBootstrap {
     this.defaultChannelInitializer = channelInitializer;
   }
 
-  public void start() {
+  public void start(long startTime) {
     boss = new NioEventLoopGroup();
     worker = new NioEventLoopGroup();
     try {
@@ -33,7 +33,8 @@ public class DefaultNettyServerBootstrap {
       bootstrap.childHandler(defaultChannelInitializer);
       ChannelFuture f = bootstrap.bind(port).sync();
       if (f.isSuccess()) {
-        log.info("netty start successful:{}", this.port);
+        long endTime = System.currentTimeMillis();
+        log.info("netty start successful:{}(ms)", endTime  - startTime);
       }
       f.channel().closeFuture().sync();
     } catch (Exception e) {
@@ -54,4 +55,5 @@ public class DefaultNettyServerBootstrap {
     }
 
   }
+
 }

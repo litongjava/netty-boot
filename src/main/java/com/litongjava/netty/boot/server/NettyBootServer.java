@@ -19,16 +19,16 @@ public class NettyBootServer {
     return me;
   }
 
-  public void start(int port, String contextPath) {
-    DefaultChannelInitializer defaultChannelInitializer = new DefaultChannelInitializer(contextPath);
-    nettyServerBootstrap = new DefaultNettyServerBootstrap(port, defaultChannelInitializer);
-    nettyServerBootstrap.start();
-  }
-
   // Add this method to stop the server
   public void stop() {
     if (nettyServerBootstrap != null) {
       nettyServerBootstrap.close();
     }
+  }
+
+  public void start(int port, String contextPath, long startTime) {
+    DefaultChannelInitializer defaultChannelInitializer = new DefaultChannelInitializer(contextPath);
+    nettyServerBootstrap = new DefaultNettyServerBootstrap(port, defaultChannelInitializer);
+    nettyServerBootstrap.start(startTime);
   }
 }

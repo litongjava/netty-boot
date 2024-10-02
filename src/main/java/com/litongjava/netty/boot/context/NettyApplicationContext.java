@@ -89,7 +89,7 @@ public class NettyApplicationContext implements Context {
         throw new RuntimeException("Failed to configure bootConfiguration", e);
       }
     }
-    
+
     if (ClassCheckUtils.check(AopClasses.Aop)) {
       if (scannedClasses != null && scannedClasses.size() > 0) {
         this.initAnnotation(scannedClasses);
@@ -97,15 +97,6 @@ public class NettyApplicationContext implements Context {
     }
 
     configEndTimeTime = System.currentTimeMillis();
-
-    long serverStartTime = System.currentTimeMillis();
-
-    // 根据参数判断是否启动服务器,默认启动服务器
-    if (EnvUtils.getBoolean(ServerConfigKeys.SERVER_LISTENING_ENABLE, true)) {
-      nettyBootServer.start(port, contextPath);
-    }
-
-    long serverEndTime = System.currentTimeMillis();
 
     long routeStartTime = System.currentTimeMillis();
 
@@ -120,11 +111,17 @@ public class NettyApplicationContext implements Context {
 
     long routeEndTime = System.currentTimeMillis();
 
-    log.info("init:{}(ms),scan class:{}(ms),config:{}(ms),server:{}(ms),http route:{}(ms)", initServerEndTime - initServerStartTime, scanClassEndTime - scanClassStartTime,
-        configEndTimeTime - configStartTime, serverEndTime - serverStartTime, routeEndTime - routeStartTime);
+    log.info("init:{}(ms),scan class:{}(ms),config:{}(ms),http route:{}(ms)", initServerEndTime - initServerStartTime, scanClassEndTime - scanClassStartTime, configEndTimeTime - configStartTime,
+        routeEndTime - routeStartTime);
 
     if (!EnvUtils.getBoolean(ServerConfigKeys.SERVER_LISTENING_ENABLE, false)) {
       printUrl(port, contextPath);
+    }
+    configEndTimeTime = System.currentTimeMillis();
+
+    // 根据参数判断是否启动服务器,默认启动服务器
+    if (EnvUtils.getBoolean(ServerConfigKeys.SERVER_LISTENING_ENABLE, true)) {
+      nettyBootServer.start(port, contextPath, initServerStartTime);
     }
 
     return this;
