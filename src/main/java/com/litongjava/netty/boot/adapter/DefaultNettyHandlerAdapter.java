@@ -2,6 +2,7 @@ package com.litongjava.netty.boot.adapter;
 
 import com.litongjava.netty.boot.http.HttpRequestHandler;
 import com.litongjava.netty.boot.http.HttpRequestRouter;
+import com.litongjava.netty.boot.listener.ChannelConnectionListener;
 import com.litongjava.netty.boot.server.NettyBootServer;
 import com.litongjava.netty.boot.websocket.WebSocketFrameHandler;
 import com.litongjava.netty.boot.websocket.WebSocketFrameHandlerAdapter;
@@ -28,9 +29,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
 
 public class DefaultNettyHandlerAdapter extends SimpleChannelInboundHandler<Object> {
-
-  private WebSocketServerHandshaker handshaker;
-
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
     if (msg instanceof FullHttpRequest) {
@@ -57,7 +55,8 @@ public class DefaultNettyHandlerAdapter extends SimpleChannelInboundHandler<Obje
 
       String webSocketLocation = getWebSocketLocation(request);
       WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(webSocketLocation, null, true);
-      handshaker = wsFactory.newHandshaker(request);
+
+      WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(request);
       if (handshaker == null) {
         // Version not supported
         WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
@@ -81,7 +80,7 @@ public class DefaultNettyHandlerAdapter extends SimpleChannelInboundHandler<Obje
     if (httpRequestHandler != null) {
       try {
         response = httpRequestHandler.handle(ctx, request);
-      }catch (Exception e) {
+      } catch (Exception e) {
         e.printStackTrace();
         String responseContent = "500 Internal Sever Error";
         ByteBuf byteBuffer = Unpooled.copiedBuffer(responseContent, CharsetUtil.UTF_8);
@@ -125,6 +124,34 @@ public class DefaultNettyHandlerAdapter extends SimpleChannelInboundHandler<Obje
     ChannelFuture f = ctx.writeAndFlush(res);
     if (!HttpUtil.isKeepAlive(req) || res.status().code() != HttpResponseStatus.OK.code()) {
       f.addListener(ChannelFutureListener.CLOSE);
+    }
+  }
+
+  /**
+   * 当客户端连接服务端之后（打开链接） 获取客户端的channel，并且放到channelGroup中去管理
+   * 
+   * @param ctx
+   * @throws Exception
+   */
+  @Override
+  public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+    ChannelConnectionListener channelConnectListener = NettyBootServer.me().getChannelConnectionListener();
+    if (channelConnectListener != null) {
+      channelConnectListener.handlerAdded(ctx);
+    }
+  }
+
+  /**
+   * 客户端断开
+   * 
+   * @param ctx
+   * @throws Exception
+   */
+  @Override
+  public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+    ChannelConnectionListener channelConnectListener = NettyBootServer.me().getChannelConnectionListener();
+    if (channelConnectListener != null) {
+      channelConnectListener.handlerRemoved(ctx);
     }
   }
 }

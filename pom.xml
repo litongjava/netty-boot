@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.litongjava</groupId>
   <artifactId>netty-boot</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <name>netty-boot</name>
   <description>java开发常用工具类封装</description>
   <url>https://github.com/litongjava/netty-boot</url>
