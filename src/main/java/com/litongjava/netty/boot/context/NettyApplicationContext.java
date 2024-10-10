@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class NettyApplicationContext implements Context {
 
   private NettyBootServer nettyBootServer = NettyBootServer.me();
-  private int port = 0;
+  private Integer port = 0;
 
   public Context run(Class<?>[] primarySources, String[] args) {
     return run(primarySources, null, args);
@@ -47,8 +47,14 @@ public class NettyApplicationContext implements Context {
     EnvUtils.buildCmdArgsMap(args);
     EnvUtils.load();
     // port and contextPath
-    port = EnvUtils.getInt(ServerConfigKeys.SERVER_PORT, 80);
-    String contextPath = EnvUtils.get(ServerConfigKeys.SERVER_CONTEXT_PATH);
+    port = EnvUtils.getInt("netty.server.port");
+    if (port == null) {
+      port = EnvUtils.getInt(ServerConfigKeys.SERVER_PORT, 80);
+    }
+    String contextPath = EnvUtils.get("netty.server.context-path");
+    if (contextPath == null) {
+      contextPath = EnvUtils.get(ServerConfigKeys.SERVER_CONTEXT_PATH);
+    }
 
     long initServerEndTime = System.currentTimeMillis();
 
@@ -85,15 +91,6 @@ public class NettyApplicationContext implements Context {
 
     configStartTime = System.currentTimeMillis();
 
-    if (bootConfiguration != null) {
-      try {
-        // Configure TioBootConfiguration
-        bootConfiguration.config();
-      } catch (IOException e) {
-        throw new RuntimeException("Failed to configure bootConfiguration", e);
-      }
-    }
-
     HttpRequestInterceptor httpRequestInterceptor = nettyBootServer.getHttpRequestInterceptorDispather();
     if (httpRequestInterceptor == null) {
       httpRequestInterceptor = new DefaultHttpRequestInterceptorDispatcher();
@@ -112,6 +109,15 @@ public class NettyApplicationContext implements Context {
       nettyBootServer.setWebsocketRouter(websocketRouter);
     }
 
+    if (bootConfiguration != null) {
+      try {
+        // Configure TioBootConfiguration
+        bootConfiguration.config();
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to configure bootConfiguration", e);
+      }
+    }
+
     if (ClassCheckUtils.check(AopClasses.Aop)) {
       if (scannedClasses != null && scannedClasses.size() > 0) {
         this.initAnnotation(scannedClasses);
@@ -127,9 +133,12 @@ public class NettyApplicationContext implements Context {
     Map<String, WebSocketFrameHandler> websocketMapping = websocketRouter.mapping();
 
     log.info(":{},{},{}", nettyBootServer, httpRequestRouter, websocketRouter);
-
-    log.info("http  mapping\r\n{}", MapJsonUtils.toPrettyJson(httpRequestMapping));
-    log.info("websocket  mapping\r\n{}", MapJsonUtils.toPrettyJson(websocketMapping));
+    if (httpRequestMapping.size() > 0) {
+      log.info("http  mapping\r\n{}", MapJsonUtils.toPrettyJson(httpRequestMapping));
+    }
+    if (websocketMapping.size() > 0) {
+      log.info("websocket  mapping\r\n{}", MapJsonUtils.toPrettyJson(websocketMapping));
+    }
 
     long routeEndTime = System.currentTimeMillis();
 
