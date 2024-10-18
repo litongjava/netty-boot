@@ -6,8 +6,6 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultNettyServerBootstrap {
   private int port;
   private ChannelInitializer<SocketChannel> defaultChannelInitializer;
-  private EventLoopGroup parentGroup = new NioEventLoopGroup();
-  private EventLoopGroup chiledGroup = new NioEventLoopGroup();
   private ChannelFuture future;
 
   public DefaultNettyServerBootstrap(int port, ChannelInitializer<SocketChannel> channelInitializer) {
@@ -26,11 +22,8 @@ public class DefaultNettyServerBootstrap {
   }
 
   public void start(long startTime) {
-    parentGroup = new NioEventLoopGroup();
-    chiledGroup = new NioEventLoopGroup();
     ServerBootstrap bootstrap = new ServerBootstrap();
-    bootstrap.group(parentGroup, chiledGroup);
-
+    bootstrap.group(NioEventLoopGroupCan.parentGroup, NioEventLoopGroupCan.chiledGroup);
     bootstrap.channel(NioServerSocketChannel.class);
     bootstrap.option(ChannelOption.SO_BACKLOG, EnvUtils.getInt("NETTY_SO_BACKLOG", 1024));
     bootstrap.option(ChannelOption.TCP_NODELAY, EnvUtils.getBoolean("NETTY_TCP_NODELAY", true));
@@ -69,11 +62,11 @@ public class DefaultNettyServerBootstrap {
         Thread.currentThread().interrupt();
       }
     }
-    if (parentGroup != null) {
-      parentGroup.shutdownGracefully();
+    if (NioEventLoopGroupCan.chiledGroup != null) {
+      NioEventLoopGroupCan.chiledGroup.shutdownGracefully();
     }
-    if (chiledGroup != null) {
-      chiledGroup.shutdownGracefully();
+    if (NioEventLoopGroupCan.chiledGroup != null) {
+      NioEventLoopGroupCan.chiledGroup.shutdownGracefully();
     }
     log.info("Netty server closed.");
   }

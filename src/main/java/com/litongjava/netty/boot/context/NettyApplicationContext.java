@@ -49,10 +49,7 @@ public class NettyApplicationContext implements Context {
     EnvUtils.buildCmdArgsMap(args);
     EnvUtils.load();
     // port and contextPath
-    port = EnvUtils.getInt("netty.server.port");
-    if (port == null) {
-      port = EnvUtils.getInt(ServerConfigKeys.SERVER_PORT, 80);
-    }
+
     String contextPath = EnvUtils.get("netty.server.context-path");
     if (contextPath == null) {
       contextPath = EnvUtils.get(ServerConfigKeys.SERVER_CONTEXT_PATH);
@@ -147,14 +144,26 @@ public class NettyApplicationContext implements Context {
     log.info("init:{}(ms),scan class:{}(ms),config:{}(ms),http route:{}(ms)", initServerEndTime - initServerStartTime, scanClassEndTime - scanClassStartTime, configEndTimeTime - configStartTime,
         routeEndTime - routeStartTime);
 
+    port = EnvUtils.getInt("netty.server.port");
+    if (port == null) {
+      port = EnvUtils.getInt(ServerConfigKeys.SERVER_PORT, 0);
+    }
+    Integer sslPort = EnvUtils.getInt("netty.server.ssl.port");
+    if (sslPort == null) {
+      sslPort = EnvUtils.getInt(ServerConfigKeys.SERVER_SSL_PORT, 0);
+    }
+    if (port.equals(0) && sslPort.equals(0)) {
+      port = 80;
+    }
     if (!EnvUtils.getBoolean(ServerConfigKeys.SERVER_LISTENING_ENABLE, false)) {
       printUrl(port, contextPath);
     }
+
     configEndTimeTime = System.currentTimeMillis();
 
     // 根据参数判断是否启动服务器,默认启动服务器
     if (EnvUtils.getBoolean(ServerConfigKeys.SERVER_LISTENING_ENABLE, true)) {
-      nettyBootServer.start(port, contextPath, websocketRouter, initServerStartTime);
+      nettyBootServer.start(port, sslPort, contextPath, websocketRouter, initServerStartTime);
     }
 
     return this;
