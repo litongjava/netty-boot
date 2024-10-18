@@ -4,21 +4,23 @@ import com.litongjava.tio.utils.environment.EnvUtils;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DefaultNettyServerBootstrap {
   private int port;
-  private DefaultChannelInitializer defaultChannelInitializer;
+  private ChannelInitializer<SocketChannel> defaultChannelInitializer;
   private EventLoopGroup parentGroup = new NioEventLoopGroup();
   private EventLoopGroup chiledGroup = new NioEventLoopGroup();
   private ChannelFuture future;
 
-  public DefaultNettyServerBootstrap(int port, DefaultChannelInitializer channelInitializer) {
+  public DefaultNettyServerBootstrap(int port, ChannelInitializer<SocketChannel> channelInitializer) {
     this.port = port;
     this.defaultChannelInitializer = channelInitializer;
   }
@@ -44,7 +46,7 @@ public class DefaultNettyServerBootstrap {
 
       future.addListener(f -> {
         if (f.isSuccess()) {
-          //log.info("Netty started successfully on port {}", port);
+          log.info("Netty started successfully on port {}", port);
         } else {
           log.error("Failed to start Netty: {}", f);
         }
