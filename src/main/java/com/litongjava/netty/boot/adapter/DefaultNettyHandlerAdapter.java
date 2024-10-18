@@ -7,9 +7,6 @@ import com.litongjava.netty.boot.http.HttpRequestRouter;
 import com.litongjava.netty.boot.inteceptor.HttpRequestInterceptor;
 import com.litongjava.netty.boot.listener.ChannelConnectionListener;
 import com.litongjava.netty.boot.server.NettyBootServer;
-import com.litongjava.netty.boot.websocket.WebSocketFrameHandler;
-import com.litongjava.netty.boot.websocket.WebSocketFrameHandlerAdapter;
-import com.litongjava.netty.boot.websocket.WebsocketRouter;
 import com.litongjava.tio.utils.environment.EnvUtils;
 
 import io.netty.buffer.ByteBuf;
@@ -17,7 +14,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -29,8 +25,6 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
-import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,9 +35,12 @@ public class DefaultNettyHandlerAdapter extends SimpleChannelInboundHandler<Obje
     if (msg instanceof FullHttpRequest) {
       handleHttpRequest(ctx, (FullHttpRequest) msg);
     } else if (msg instanceof WebSocketFrame) {
-      // Delegate to the next handler in the pipeline
-      ctx.fireChannelRead(msg);
+      handleWebSocketFrame(ctx, (WebSocketFrame) msg);
     }
+  }
+
+  private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame msg) {
+
   }
 
   private void handleHttpRequest(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
@@ -84,36 +81,6 @@ public class DefaultNettyHandlerAdapter extends SimpleChannelInboundHandler<Obje
           }
         }
         writeHttpResponse(ctx, request, response);
-        return;
-      }
-
-      // Check for WebSocket upgrade
-      if ("websocket".equalsIgnoreCase(request.headers().get(HttpHeaderNames.UPGRADE))) {
-        // Handle WebSocket handshake
-        WebsocketRouter websocketRouter = nettyBootServer.getWebsocketRouter();
-        WebSocketFrameHandler wsHandler = websocketRouter.find(uri);
-
-        if (wsHandler == null) {
-          // No handler found, send 404
-          sendHttpResponse(ctx, request, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND));
-          return;
-        }
-
-        String webSocketLocation = getWebSocketLocation(request);
-        WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(webSocketLocation, null, true);
-
-        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(request);
-        if (handshaker == null) {
-          // Version not supported
-          WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
-        } else {
-          ChannelPipeline pipeline = ctx.pipeline();
-
-          // Replace HTTP handler with WebSocket frame handler
-          pipeline.replace(this, "websocketFrameHandler", new WebSocketFrameHandlerAdapter(wsHandler));
-
-          handshaker.handshake(ctx.channel(), request);
-        }
         return;
       }
 
@@ -158,27 +125,6 @@ public class DefaultNettyHandlerAdapter extends SimpleChannelInboundHandler<Obje
     ChannelFuture f = ctx.writeAndFlush(response);
 
     if (!keepAlive) {
-      f.addListener(ChannelFutureListener.CLOSE);
-    }
-  }
-
-  private static String getWebSocketLocation(FullHttpRequest req) {
-    String location = req.headers().get(HttpHeaderNames.HOST) + req.uri();
-    return "ws://" + location;
-  }
-
-  private static void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, FullHttpResponse res) {
-    // Generate error page if response status code is not OK (200)
-    if (res.status().code() != HttpResponseStatus.OK.code()) {
-      ByteBuf buf = Unpooled.copiedBuffer(res.status().toString(), CharsetUtil.UTF_8);
-      res.content().writeBytes(buf);
-      buf.release();
-      HttpUtil.setContentLength(res, res.content().readableBytes());
-    }
-
-    // Send the response and close the connection if necessary
-    ChannelFuture f = ctx.writeAndFlush(res);
-    if (!HttpUtil.isKeepAlive(req) || res.status().code() != HttpResponseStatus.OK.code()) {
       f.addListener(ChannelFutureListener.CLOSE);
     }
   }

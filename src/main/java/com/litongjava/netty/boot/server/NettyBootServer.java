@@ -53,12 +53,12 @@ public class NettyBootServer {
     me = new NettyBootServer();
   }
 
-  public void start(int port, String contextPath, long startTime) {
-    DefaultChannelInitializer defaultChannelInitializer = new DefaultChannelInitializer(contextPath);
+  public void start(Integer port, String contextPath, WebsocketRouter websocketRouter, long startTime) {
+    DefaultChannelInitializer defaultChannelInitializer = new DefaultChannelInitializer(contextPath, websocketRouter);
     nettyServerBootstrap = new DefaultNettyServerBootstrap(port, defaultChannelInitializer);
     nettyServerBootstrap.start(startTime);
   }
-  
+
   public void restart(long startTime) {
     nettyServerBootstrap.restart(startTime);
   }
@@ -66,5 +66,5 @@ public class NettyBootServer {
   public boolean isRunning() {
     return nettyServerBootstrap.isRunning();
   }
- 
+
 }

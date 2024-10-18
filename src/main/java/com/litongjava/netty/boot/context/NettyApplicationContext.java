@@ -3,6 +3,7 @@ package com.litongjava.netty.boot.context;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import com.litongjava.annotation.AImport;
 import com.litongjava.constatns.AopClasses;
@@ -19,12 +20,13 @@ import com.litongjava.netty.boot.inteceptor.DefaultHttpRequestInterceptorDispatc
 import com.litongjava.netty.boot.inteceptor.HttpRequestInterceptor;
 import com.litongjava.netty.boot.server.NettyBootServer;
 import com.litongjava.netty.boot.websocket.DefaultWebsocketRouter;
-import com.litongjava.netty.boot.websocket.WebSocketFrameHandler;
 import com.litongjava.netty.boot.websocket.WebsocketRouter;
 import com.litongjava.tio.utils.environment.EnvUtils;
 import com.litongjava.tio.utils.json.MapJsonUtils;
 import com.litongjava.tio.utils.reflicaiton.ClassCheckUtils;
 
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -130,7 +132,7 @@ public class NettyApplicationContext implements Context {
 
     Map<String, HttpRequestHandler> httpRequestMapping = httpRequestRouter.mapping();
 
-    Map<String, WebSocketFrameHandler> websocketMapping = websocketRouter.mapping();
+    Map<String, Supplier<SimpleChannelInboundHandler<WebSocketFrame>>> websocketMapping = websocketRouter.mapping();
 
     log.info(":{},{},{}", nettyBootServer, httpRequestRouter, websocketRouter);
     if (httpRequestMapping.size() > 0) {
@@ -152,7 +154,7 @@ public class NettyApplicationContext implements Context {
 
     // 根据参数判断是否启动服务器,默认启动服务器
     if (EnvUtils.getBoolean(ServerConfigKeys.SERVER_LISTENING_ENABLE, true)) {
-      nettyBootServer.start(port, contextPath, initServerStartTime);
+      nettyBootServer.start(port, contextPath, websocketRouter, initServerStartTime);
     }
 
     return this;
