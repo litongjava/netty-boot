@@ -1,6 +1,6 @@
 package com.litongjava.netty.boot.adapter;
 
-import com.litongjava.constatns.ServerConfigKeys;
+import com.litongjava.constants.ServerConfigKeys;
 import com.litongjava.netty.boot.context.NettyRequestContext;
 import com.litongjava.netty.boot.http.HttpRequestHandler;
 import com.litongjava.netty.boot.http.HttpRequestRouter;

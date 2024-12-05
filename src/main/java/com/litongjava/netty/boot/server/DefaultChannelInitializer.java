@@ -1,6 +1,6 @@
 package com.litongjava.netty.boot.server;
 
-import com.litongjava.constatns.ServerConfigKeys;
+import com.litongjava.constants.ServerConfigKeys;
 import com.litongjava.netty.boot.adapter.DefaultNettyHandlerAdapter;
 import com.litongjava.netty.boot.handler.ContextPathHandler;
 import com.litongjava.netty.boot.websocket.WebSocketHandshakeHandler;

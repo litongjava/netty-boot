@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import com.litongjava.annotation.AImport;
-import com.litongjava.constatns.AopClasses;
-import com.litongjava.constatns.ServerConfigKeys;
+import com.litongjava.constants.AopClasses;
+import com.litongjava.constants.ServerConfigKeys;
 import com.litongjava.context.BootConfiguration;
 import com.litongjava.context.Context;
 import com.litongjava.jfinal.aop.process.BeanProcess;
 import com.litongjava.jfinal.aop.process.BeforeStartConfigurationProcess;
-import com.litongjava.jfinal.aop.scaner.ComponentScanner;
+import com.litongjava.jfinal.aop.scanner.ComponentScanner;
 import com.litongjava.netty.boot.http.DefaultHttpReqeustRouter;
 import com.litongjava.netty.boot.http.HttpRequestHandler;
 import com.litongjava.netty.boot.http.HttpRequestRouter;
@@ -58,9 +58,9 @@ public class NettyApplicationContext implements Context {
     long initServerEndTime = System.currentTimeMillis();
 
     List<Class<?>> scannedClasses = null;
-    boolean printScannedClasses = EnvUtils.getBoolean(ServerConfigKeys.AOP_PRINT_SCANNED_CLASSSES, false);
+    boolean printScannedClasses = EnvUtils.getBoolean(ServerConfigKeys.AOP_PRINT_SCANNED_CLASSES, false);
     // 添加自定义组件注解
-    if (ClassCheckUtils.check(AopClasses.Aop)) {
+    if (ClassCheckUtils.check(AopClasses.AOP)) {
       scanClassStartTime = System.currentTimeMillis();
       // process @AComponentScan
       try {
@@ -85,7 +85,7 @@ public class NettyApplicationContext implements Context {
       scannedClasses = this.processBeforeStartConfiguration(scannedClasses);
       scanClassEndTime = System.currentTimeMillis();
     } else {
-      log.info("not found:{}", AopClasses.Aop);
+      log.info("not found:{}", AopClasses.AOP);
     }
 
     configStartTime = System.currentTimeMillis();
@@ -117,7 +117,7 @@ public class NettyApplicationContext implements Context {
       }
     }
 
-    if (ClassCheckUtils.check(AopClasses.Aop)) {
+    if (ClassCheckUtils.check(AopClasses.AOP)) {
       if (scannedClasses != null && scannedClasses.size() > 0) {
         this.initAnnotation(scannedClasses);
       }
