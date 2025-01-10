@@ -2,15 +2,15 @@ package com.litongjava.netty.boot.utils;
 
 import java.util.List;
 
+import com.litongjava.netty.boot.adapter.HttpRequest;
 import com.litongjava.tio.utils.json.JsonUtils;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.util.CharsetUtil;
 
 public class HttpRequestUtils {
 
-  public static <T> T parseJson(FullHttpRequest httpRequest, Class<T> clazz) {
+  public static <T> T parseJson(HttpRequest httpRequest, Class<T> clazz) {
     // 获取请求内容的 ByteBuf
     ByteBuf content = httpRequest.content();
 
@@ -21,7 +21,7 @@ public class HttpRequestUtils {
     return JsonUtils.parse(jsonString, clazz);
   }
 
-  public static <T> List<T> parseJsonArray(FullHttpRequest httpRequest, Class<T> clazz) {
+  public static <T> List<T> parseJsonArray(HttpRequest httpRequest, Class<T> clazz) {
     // 获取请求内容的 ByteBuf
     ByteBuf content = httpRequest.content();
 
@@ -32,7 +32,7 @@ public class HttpRequestUtils {
     return JsonUtils.parseArray(jsonString, clazz);
   }
 
-  public static String getFullHttpRequestAsString(FullHttpRequest httpRequest) {
+  public static String getHttpRequestAsString(HttpRequest httpRequest) {
     StringBuffer requestBuffer = new StringBuffer();
 
     // 1. Append the request line (e.g., POST /api/login HTTP/1.1)

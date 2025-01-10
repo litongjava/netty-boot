@@ -1,5 +1,6 @@
 package com.litongjava.netty.boot.adapter;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
@@ -40,5 +41,9 @@ public class HttpRequest {
 
   public String uri() {
     return request.uri();
+  }
+
+  public ByteBuf content() {
+    return request.content();
   }
 }
