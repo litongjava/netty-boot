@@ -41,7 +41,7 @@
     <dependency>
       <groupId>com.litongjava</groupId>
       <artifactId>netty-boot</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.8</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>

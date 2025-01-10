@@ -15,9 +15,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
@@ -59,13 +57,14 @@ public class DefaultNettyHandlerAdapter extends SimpleChannelInboundHandler<Obje
 
     boolean printReport = EnvUtils.getBoolean(ServerConfigKeys.SERVER_HTTP_REQUEST_PRINTREPORT, false);
     HttpRequestInterceptor httpRequestInterceptorDispather = nettyBootServer.getHttpRequestInterceptorDispather();
-    FullHttpResponse response = null;
+    HttpResponse httpResponse = null;
+    HttpRequest httpRequest = new HttpRequest(request);
     long start = System.currentTimeMillis();
     try {
       // Interceptor
-      NettyRequestContext.hold(request);
-      response = httpRequestInterceptorDispather.before(request);
-      if (response != null) {
+      NettyRequestContext.hold(httpRequest);
+      httpResponse = httpRequestInterceptorDispather.before(httpRequest);
+      if (httpResponse != null) {
         if (printReport) {
           if (log.isInfoEnabled()) {
             StringBuffer stringBuffer = new StringBuffer();
@@ -73,14 +72,14 @@ public class DefaultNettyHandlerAdapter extends SimpleChannelInboundHandler<Obje
 
             stringBuffer.append("request:").append(requestLine).append("\n")//
                 .append("httpServerInterceptor:" + httpRequestInterceptorDispather).append("\n")//
-                .append("response:" + response).append("\n")//
+                .append("response:" + httpResponse.getResponse()).append("\n")//
                 .append("\n");
 
             log.info(stringBuffer.toString());
 
           }
         }
-        writeHttpResponse(ctx, request, response);
+        writeHttpResponse(ctx, httpRequest, httpResponse);
         return;
       }
 
@@ -89,41 +88,41 @@ public class DefaultNettyHandlerAdapter extends SimpleChannelInboundHandler<Obje
       HttpRequestHandler httpRequestHandler = httpRequestRouter.find(uri);
       if (httpRequestHandler != null) {
         try {
-          response = httpRequestHandler.handle(ctx, request);
+          httpResponse = httpRequestHandler.handle(ctx, httpRequest);
         } catch (Exception e) {
           e.printStackTrace();
           String responseContent = "500 Internal Sever Error";
           ByteBuf byteBuffer = Unpooled.copiedBuffer(responseContent, CharsetUtil.UTF_8);
-          response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, byteBuffer);
+          httpResponse = new HttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, byteBuffer);
         }
       } else {
         String responseContent = "404 Not Found";
         ByteBuf byteBuffer = Unpooled.copiedBuffer(responseContent, CharsetUtil.UTF_8);
-        response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND, byteBuffer);
+        httpResponse = new HttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND, byteBuffer);
       }
     } catch (Exception e) {
       e.printStackTrace();
       String responseContent = "500 Internal Sever Error";
       ByteBuf byteBuffer = Unpooled.copiedBuffer(responseContent, CharsetUtil.UTF_8);
-      response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, byteBuffer);
+      httpResponse = new HttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, byteBuffer);
+      
     } finally {
       long end = System.currentTimeMillis();
-      httpRequestInterceptorDispather.after(request, response, (end - start));
+      httpRequestInterceptorDispather.after(httpRequest, httpResponse, (end - start));
       NettyRequestContext.release();
     }
-    writeHttpResponse(ctx, request, response);
+    writeHttpResponse(ctx, httpRequest, httpResponse);
   }
 
-  private void writeHttpResponse(ChannelHandlerContext ctx, FullHttpRequest request, FullHttpResponse response) {
-    boolean keepAlive = HttpUtil.isKeepAlive(request);
+  private void writeHttpResponse(ChannelHandlerContext ctx, HttpRequest httRequest, HttpResponse httpResponse) {
+    boolean keepAlive = HttpUtil.isKeepAlive(httRequest.getRequest());
     if (keepAlive) {
-      response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-      HttpUtil.setContentLength(response, response.content().readableBytes());
+      httpResponse.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+      HttpUtil.setContentLength(httpResponse.getResponse(), httpResponse.content().readableBytes());
     }
 
     // Write response
-    ChannelFuture f = ctx.writeAndFlush(response);
-
+    ChannelFuture f = ctx.writeAndFlush(httpResponse.getResponse());
     if (!keepAlive) {
       f.addListener(ChannelFutureListener.CLOSE);
     }

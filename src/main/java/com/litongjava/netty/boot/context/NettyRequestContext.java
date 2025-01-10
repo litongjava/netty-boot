@@ -1,20 +1,21 @@
 package com.litongjava.netty.boot.context;
 
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
+import com.litongjava.netty.boot.adapter.HttpRequest;
+import com.litongjava.netty.boot.adapter.HttpResponse;
+
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 
 public class NettyRequestContext {
   private static ThreadLocal<NettyHttpAction> requests = new ThreadLocal<>();
 
-  public static void hold(FullHttpRequest request) {
-    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
-    requests.set(new NettyHttpAction(request, response));
+  public static void hold(HttpRequest httpRequest) {
+    HttpResponse httpResponse = new HttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+    
+    requests.set(new NettyHttpAction(httpRequest, httpResponse));
   }
 
-  public static FullHttpRequest getRequest() {
+  public static HttpRequest getRequest() {
     return requests.get().getRequest();
   }
 

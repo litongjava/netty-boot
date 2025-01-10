@@ -3,10 +3,10 @@ package com.litongjava.netty.boot.inteceptor;
 import java.util.List;
 import java.util.Map;
 
+import com.litongjava.netty.boot.adapter.HttpRequest;
+import com.litongjava.netty.boot.adapter.HttpResponse;
 import com.litongjava.netty.boot.server.NettyBootServer;
 
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
 
 /**
  * DefaultHttpServerInterceptor
@@ -21,7 +21,7 @@ public class DefaultHttpRequestInterceptorDispatcher implements HttpRequestInter
    * @return
    */
   @Override
-  public FullHttpResponse before(FullHttpRequest request) throws Exception {
+  public HttpResponse before(HttpRequest request) throws Exception {
     ServerInteceptorConfigure serverInteceptorConfigure = NettyBootServer.me().getServerInteceptorConfigure();
     if (serverInteceptorConfigure == null) {
       return null;
@@ -34,7 +34,7 @@ public class DefaultHttpRequestInterceptorDispatcher implements HttpRequestInter
       if (isBlock) {
         HttpRequestInterceptor interceptor = model.getInterceptor();
         if (interceptor != null) {
-          FullHttpResponse response = interceptor.before(request);
+          HttpResponse response = interceptor.before(request);
           if (response != null) {
             return response; // 如果拦截器返回响应，直接返回
           }
@@ -45,7 +45,7 @@ public class DefaultHttpRequestInterceptorDispatcher implements HttpRequestInter
   }
 
   @Override
-  public void after(FullHttpRequest request, FullHttpResponse response, long cost) throws Exception {
+  public void after(HttpRequest request, HttpResponse response, long cost) throws Exception {
     ServerInteceptorConfigure serverInteceptorConfigure = NettyBootServer.me().getServerInteceptorConfigure();
     if (serverInteceptorConfigure == null) {
       return;
@@ -101,5 +101,5 @@ public class DefaultHttpRequestInterceptorDispatcher implements HttpRequestInter
     }
     return path.equals(pattern);
   }
-  
+
 }

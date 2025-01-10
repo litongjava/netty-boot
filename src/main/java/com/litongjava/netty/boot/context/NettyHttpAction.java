@@ -1,35 +1,35 @@
 package com.litongjava.netty.boot.context;
 
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
+import com.litongjava.netty.boot.adapter.HttpRequest;
+import com.litongjava.netty.boot.adapter.HttpResponse;
 
 public class NettyHttpAction {
-  private FullHttpRequest request;
-  private FullHttpResponse response;
+  private HttpRequest request;
+  private HttpResponse response;
 
   public NettyHttpAction() {
     super();
   }
 
-  public NettyHttpAction(FullHttpRequest request, FullHttpResponse response) {
+  public NettyHttpAction(HttpRequest request, HttpResponse response) {
     super();
     this.request = request;
     this.response = response;
   }
 
-  public FullHttpRequest getRequest() {
+  public HttpRequest getRequest() {
     return request;
   }
 
-  public void setRequest(FullHttpRequest request) {
+  public void setRequest(HttpRequest request) {
     this.request = request;
   }
 
-  public FullHttpResponse getResponse() {
+  public HttpResponse getResponse() {
     return response;
   }
 
-  public void setResponse(FullHttpResponse response) {
+  public void setResponse(HttpResponse response) {
     this.response = response;
   }
 

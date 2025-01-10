@@ -1,6 +1,5 @@
 package com.litongjava.netty.boot.context;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -112,7 +111,7 @@ public class NettyApplicationContext implements Context {
       try {
         // Configure TioBootConfiguration
         bootConfiguration.config();
-      } catch (IOException e) {
+      } catch (Exception e) {
         throw new RuntimeException("Failed to configure bootConfiguration", e);
       }
     }

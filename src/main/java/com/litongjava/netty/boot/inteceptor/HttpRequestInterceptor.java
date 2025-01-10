@@ -1,7 +1,7 @@
 package com.litongjava.netty.boot.inteceptor;
 
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
+import com.litongjava.netty.boot.adapter.HttpRequest;
+import com.litongjava.netty.boot.adapter.HttpResponse;
 
 /**
  * @author Tong Li
@@ -15,7 +15,7 @@ public interface HttpRequestInterceptor {
    * @return
    * @throws Exception
    */
-  public FullHttpResponse before(FullHttpRequest request) throws Exception;
+  public HttpResponse before(HttpRequest request) throws Exception;
 
 
   /**
@@ -25,5 +25,5 @@ public interface HttpRequestInterceptor {
    * @param cost
    * @throws Exception
    */
-  public void after(FullHttpRequest request,FullHttpResponse response, long cost) throws Exception;
+  public void after(HttpRequest request,HttpResponse response, long cost) throws Exception;
 }

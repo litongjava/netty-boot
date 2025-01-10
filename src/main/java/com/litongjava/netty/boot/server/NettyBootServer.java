@@ -9,7 +9,7 @@ import java.util.List;
 import javax.net.ssl.SSLException;
 
 import com.litongjava.constants.ServerConfigKeys;
-import com.litongjava.hook.HookContainer;
+import com.litongjava.hook.HookCan;
 import com.litongjava.netty.boot.http.HttpRequestRouter;
 import com.litongjava.netty.boot.inteceptor.HttpRequestInterceptor;
 import com.litongjava.netty.boot.inteceptor.ServerInteceptorConfigure;
@@ -50,7 +50,7 @@ public class NettyBootServer {
 
   // Add this method to stop the server
   public void stop() {
-    List<Runnable> destroyMethods = HookContainer.me().getDestroyMethods();
+    List<Runnable> destroyMethods = HookCan.me().getDestroyMethods();
     Iterator<Runnable> iterator = destroyMethods.iterator();
     while (iterator.hasNext()) {
       Runnable runnable = iterator.next();

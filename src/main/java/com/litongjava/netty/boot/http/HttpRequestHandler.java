@@ -1,10 +1,11 @@
 package com.litongjava.netty.boot.http;
 
+import com.litongjava.netty.boot.adapter.HttpRequest;
+import com.litongjava.netty.boot.adapter.HttpResponse;
+
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
 
 @FunctionalInterface
 public interface HttpRequestHandler {
-  FullHttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest  httpRequest) throws Exception;
+  HttpResponse handle(ChannelHandlerContext ctx, HttpRequest  httpRequest) throws Exception;
 }
