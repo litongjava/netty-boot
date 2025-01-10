@@ -143,11 +143,11 @@ public class NettyApplicationContext implements Context {
     log.info("init:{}(ms),scan class:{}(ms),config:{}(ms),http route:{}(ms)", initServerEndTime - initServerStartTime, scanClassEndTime - scanClassStartTime, configEndTimeTime - configStartTime,
         routeEndTime - routeStartTime);
 
-    port = EnvUtils.getInt("netty.server.port");
+    port = EnvUtils.getInteger("netty.server.port");
     if (port == null) {
       port = EnvUtils.getInt(ServerConfigKeys.SERVER_PORT, 0);
     }
-    Integer sslPort = EnvUtils.getInt("netty.server.ssl.port");
+    Integer sslPort = EnvUtils.getInteger("netty.server.ssl.port");
     if (sslPort == null) {
       sslPort = EnvUtils.getInt(ServerConfigKeys.SERVER_SSL_PORT, 0);
     }
