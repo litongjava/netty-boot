@@ -21,7 +21,7 @@ public class HttpResponse {
   }
 
   public HttpResponse(HttpVersion http11, HttpResponseStatus ok) {
-    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+    DefaultFullHttpResponse response = new DefaultFullHttpResponse(http11, ok);
     this.response = response;
   }
 
@@ -38,7 +38,7 @@ public class HttpResponse {
   }
 
   public HttpResponse(HttpVersion http11, HttpResponseStatus internalServerError, ByteBuf byteBuffer) {
-    this.response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, byteBuffer);
+    this.response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, internalServerError, byteBuffer);
   }
 
   public ByteBuf content() {
